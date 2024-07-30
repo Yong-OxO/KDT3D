@@ -30,10 +30,26 @@
 // 포함이란 #include 부분에 대상 파일을 복사 붙혀넣기 한다
 
 // Input Output Stream
+//#pragma warning(disable:4789) // 특정 경고를 비활성화 할 수 있다
 #include <iostream>
 #include <format>
+#include <array>
+#include "Function/Function.h"
 
 int GInt = 0;
+
+bool FirstTrue()
+{
+    std::cout << "FirstTrue\n";
+    return true;
+}
+bool FirstFalse()
+{
+    std::cout << "FirstFalse\n";
+    return false;
+}
+
+void Function2();
 
 int main()
 {
@@ -163,7 +179,7 @@ int main()
             long long LL1{ 14LL };
             unsigned int Var3{ 4294967295 };
             unsigned int Var4{ (unsigned int)4294967296 };
-            long long LL2{ 4294967296 };
+            long long LL2{ 4294967296LL };
             //long long LL3{ (unsigned int)4294967296 };
         }
         {
@@ -173,6 +189,7 @@ int main()
             // 특징으로 인해서 오차가 발생할 수 있다.
             float F{ 3.14F };
             int Int{ (int)3.14F };
+            int Int2{ (int)3.999F }; // 소수점 부분 내림 처리
 
             // Debug 인 경우 메모리 뒷쪽에
             // 추가 정보가 기본적으로 들어가 있어서
@@ -531,6 +548,7 @@ int main()
         }
     }
 #pragma endregion
+
 #pragma region 06. 열거형(enum; enumerated type; 이넘)*
     {
         {
@@ -568,6 +586,7 @@ int main()
         }
     }
 #pragma endregion
+
 #pragma region 07. 구조체(struct)***
     {
         enum class ETier : unsigned char
@@ -602,37 +621,943 @@ int main()
 
         std::cout << "[Player Info]\n";
         std::cout << std::format("HP: {}, MP: {}, Tier: {}\n", Player2.HP, Player2.MP, (int)Player2.Tier);
-        std::cout << "HP: " << Player2.HP << ", MP: " << Player2.MP << ", Tier: " <<   (_int8)Player2.Tier << std::endl;
-        // 1바이트가 들어오게 된다면 문자취급이 된다. -> 해당 값의 대응하는 문자가 구현되어있지 않다면 공백이 출력
-        // 따라서 Tier 형변환을 했을 경우 1바이트로 하게 된다면 Tier에 해당하는 문자로 치환되지만 구현되어있지 않아 공백이 출력된다.
+        std::cout << "HP: " << Player2.HP << ", MP: " << Player2.MP << ", Tier: " << (int)Player2.Tier << std::endl;
 
-        
-
-#pragma pack(push, 1) // 가장 큰 자료형의 크기를 1단위로 바꾼다. ex) int는 4칸을 4행에 나눠 들어간다
-        // 메모리 낭비를 방지하기 위해 데이터형을 맞춰야된다.
-        // ex) char -> int -> char형이라면 (1,0,0,0) (1,1,1,1) (1,0,0,0) 형태가 되어 낭비가 된다
-        // 패딩은 구조체 내에 가장 큰 자료형을 기준으로 발생한다.
-        // 
-        // 패딩 팩을 사용하면 데이터의 용량측면에서 이득을 볼 수 있지만, 접근의 횟수가 많아질 수 있다. 최악의 경우 수행능력이 2배 저하된다.
-        // 네트워크에서 자료를 보낼 때는 용량이 적어야 성능도 올라가므로 기본적으로 패딩을 1단위로 놓는다.
-
+#pragma pack(push, 1)
         struct FPadding
         {
-            char c;
-            int i;
-            char c1;
+            char C;
+            // 3Byte padding이 숨겨져 있다
+            // 지금 가장 큰 기본 자료형 크기가 4Byte라서 4Byte padding이 잡힌다
+
+            int I;
+
+            char C1;
+            // 3Byte padding이 잡힌다.
+            // 이런 상황을 피하려면 padding을 고려해서 C1 변수를 C아래쪽으로 옮겨야
+            // 낭비되는 byte를 줄일 수 있다.
         };
-
+        /*struct FPadding1
+        {
+            char C1;
+            int I;
+        };*/
 #pragma pack(pop)
+
+        /*struct FPadding2
+        {
+            char C1;
+            int I;
+        };*/
+
+        // 64bit(8Byte) 환경에서 한번에 접근해서 연산할수 있는 최대 단위가 8Byte
+        // padding을 비활성화 해서 다음과 같은 경우
+        // char / dobule (9Byte)
+        // [00] / [00 00 00 00 00 00 00 00]
+        // [00] / [00 00 00 00 00 00 00]    // [00]  // double을 읽어오기 위해서 2번 접근할 수 있다.
+
+        // padding을 넣게 되면
+        // [00] 00 00 00 00 00 00 00 / [00 00 00 00 00 00 00 00]
+
+        // double에 값을 쓰거나 읽으려고 했을때 padding이 잡혀있지 않으면
+        // 2번 접근해야 하는 상황이 발생할 수 있다.
+        // 그렇기 때문에 읽고 쓰는 속도가 느려질 수 있다.
     }
 #pragma endregion
 
-#pragma region 08. 조건문(if / switch)
+#pragma region 08. 조건문(if / switch)***
     {
+        // if
+        {
+            int V = 0;
+            if (V == 0)
+            {
+                std::cout << "V == 0\n";
+            }
 
+            int V2 = 0;
+            //std::cin >> V2;
+            if (V2 == 100)
+            {
+                std::cout << "V2 == 100\n";
+            }
+            else if (V2 == 70)
+            {
+                std::cout << "V2 == 70\n";
+            }
+            else if (V2 == 50)
+            {
+                std::cout << "V2 == 50\n";
+            }
+            else if (V2 == 60)
+            {
+                std::cout << "V2 == 60\n";
+            }
+            else
+            {
+                std::cout << std::format("V2 : {}\n", V2);
+            }
+        }
+
+        // switch
+        {
+            int V2 = 0;
+            //std::cin >> V2;
+            switch (V2)
+            {
+            case 100:
+                std::cout << "V2 == 100\n";
+                break;
+            case 50:
+                std::cout << "V2 == 50\n";
+                break;
+            default: // if의 else와 같은 역할
+                std::cout << "default\n";
+                break;
+            }
+
+            enum class ETier : unsigned char
+            {
+                None,
+                Iron,
+                Bronze,
+                Silver,
+                Gold,
+            };
+
+            struct FPlayer
+            {
+                int HP = 10;
+                int MP = 20;
+                ETier Tier = ETier::None;
+            };
+            FPlayer Player{ .MP = 100, .Tier = ETier::Iron };
+
+            std::cout << "[Player Info]\n";
+            std::cout << std::format("HP: {}, MP: {}, ", Player.HP, Player.MP);
+            
+            switch (Player.Tier)
+            {
+            case ETier::None:
+                std::cout << "ETier::None";
+                break;
+            case ETier::Iron:
+                std::cout << "ETier::Iron";
+                break;
+            case ETier::Bronze:
+                std::cout << "ETier::Bronze";
+                break;
+            case ETier::Silver:
+                std::cout << "ETier::Silver";
+                break;
+            case ETier::Gold:
+                std::cout << "ETier::Gold";
+                break;
+            default:
+                break;
+            }
+
+            std::cout << std::endl;
+
+            switch (Player.Tier)
+            {
+            case ETier::None:
+                std::cout << "ETier::None";
+                break;
+            case ETier::Iron:
+                std::cout << "Iron";
+                [[fallthrough]]; // 에트리뷰트
+            case ETier::Bronze:
+            case ETier::Silver:
+                std::cout << "Iron or Bronze or Silver";
+                break;
+            case ETier::Gold:
+                std::cout << "ETier::Gold";
+                break;
+            default:
+                break;
+            }
+            std::cout << std::endl;
+
+            if (Player.Tier == ETier::None)
+            {
+                std::cout << "ETier::None";
+            }
+            else if (Player.Tier == ETier::Iron || Player.Tier == ETier::Bronze || Player.Tier == ETier::Silver)
+            {
+                if (Player.Tier == ETier::Iron)
+                {
+                    std::cout << "Iron";
+                }
+                std::cout << "Iron or Bronze or Silver";
+            }
+            else if (Player.Tier == ETier::Gold)
+            {
+                std::cout << "ETier::Gold";
+            }
+            else
+            {
+
+            }
+
+        }
     }
-
 #pragma endregion
+
+#pragma region 09. 논리 연산자**
+    {
+        // !: 논리 부정
+        if (!false) // !false == true
+        {
+            std::cout << "!false\n";
+        }
+
+        // 논리곱 (AND)
+        // && : 양쪽 조건이 모두 참인경우 -> true
+        //      하나라도 거짓인 경우 -> false
+        int a = 10;
+        int b = 20;
+        // 1. a == 10 ? true
+        // 2. b == 10 ? false
+        // if(true && false) => false
+        if (a == 10 && b == 10)
+        {
+            std::cout << "a == 10 && b == 10\n";
+        }
+
+        // 1. a == 10 ? true
+        // 2. b == 20 ? true
+        // if(true && true) => true
+        if (a == 10 && b == 20)
+        {
+            std::cout << "a == 10 && b == 20\n";
+        }
+
+        int c = 30;
+        // 1. a == 10 ? true
+        // 2. b == 20 ? true
+        // 3. c == 20 ? false
+        // if(true && true && false) -> false
+        if (a == 10 && b == 20 && c == 20)
+        {
+            std::cout << "a == 10 && b == 20 && c == 20\n";
+        }
+
+        //int a = 10;
+        //int b = 20;
+        // 논리합(OR)
+        // 1. a == 10 ? true
+        // if(true) -> true
+        if (a == 10 || b == 10)
+        {
+            std::cout << "a == 10 || b == 10\n";
+        }
+
+        // 1. b == 10 ? false
+        // 2. a == 10 ? true
+        // if(false || true) -> true
+        if (b == 10 || a == 10)
+        {
+            std::cout << "a == 10 || b == 10\n";
+        }
+
+        // 1. b == 50 ? false
+        // 2. a == 60 ? false
+        // if(false || false) -> false
+        if (b == 50 || a == 60)
+        {
+            std::cout << "b == 50 || a == 60\n";
+        }
+
+        // 1. a == 10 ? true
+        // 2. (b == 50 || c == 30) ? true
+        //  b == 50 ? false
+        //  c == 30 ? true
+        //  false || true -> true
+        // 3. true && (false || true)
+        //     true && true -> true
+        if (a == 10 && (b == 50 || c == 30))
+        {
+            std::cout << "a == 10 && (b == 50 || c == 30)\n";
+        }
+        else
+        {
+            std::cout << "false\n";
+        }
+
+        if (FirstFalse())
+        {
+            std::cout << "FirstTrue\n";
+        }
+        else
+        {
+            std::cout << "FirstFalse\n";
+        }
+
+        std::cout << "[Test]\n";
+        // 1. FirstTrue -> true
+        if (FirstTrue() || FirstFalse())
+        {
+            std::cout << "FirstTrue\n";
+        }
+
+        // 1. FirstFalse -> false
+        // 2. FirstTrue -> true
+        // if(false || true) -> true
+        if (FirstFalse() || FirstTrue())
+        {
+            std::cout << "FirstTrue\n";
+        }
+
+        const bool bFirst = FirstTrue();
+        const bool bSecond = FirstFalse();
+        if (bFirst || bSecond)
+        {
+            std::cout << "true\n";
+        }
+    }
+#pragma endregion
+
+#pragma region 10. 함수(fucntion)***
+    {
+        // 규모가 큰 프로그램에서 모든 코드를 main함수 안에 담게 되면
+        // 관리적인 측면에서 힘들 것 같습니다.
+        // 코드 가독성(읽기 쉬운 정도)을 높히려면 코드를 간결하고 명확한
+        // 함수 단위로 나는 것이 좋겠습니다.
+
+        // C++에서 함수를 사용하려면 먼저 함수 선언을 해야합니다.
+        // 반환타입    함수이름     (입력 파라미터(옵션; 있어도 되고 없어도 됨))
+        // void        FunctionName (int a, int b)
+        
+        // 디버거가 붙어 있는 상황에서 F11을 눌러서 함수 내부로
+        // 진입할 수 있다.
+
+        // 함수도 시작 주소가 있습니다.
+        // 함수를 호출한다는건
+        // >> 돌아올 다음주소를 Stack에 Backup 해두고
+        // >> 호출할 함수의 주소로 이동
+        // >> 함수 수행
+        // >> ret을 만나면 Backup해둔 주소로 이동
+        FunctionName(10, 20);
+
+        // 이 함수를 호출하는 위치 기준으로 이 라인보다 위에 함수가
+        // 있다는 것을 알려주지 않으면 함수를 찾을 수 없습니다.
+        Function2();
+
+        // 콜링 컨벤션(Calling Conventions)
+        // 함수를 호출하는 방식
+        // __cdecl, __stdcall, __thiscall, __fastcall
+
+        int Result = AddFunction(10, 20);
+
+        // 파라미터를 던지는 경우 특정 레지스터(메모리)에 값을 backup 했다가
+        // 함수 내부로 진입해서 그 레지스터(메모리)에서 다른 메모리로 값을 복원한다
+        // 추가적으로 함수로 이동하는 과정 (비용) 추가적으로 발생
+        // 함수 호출의 오버해드라고 표현 합니다.
+        int a = 10, b = 20;
+        // int InA = a;
+        // int InB = b;
+        int Result2 = AddFunction(a, b);
+        double Result3 = AddFunction(10.34, 3.14);
+        
+        // 재귀 함수 호출이 많이 발생하는 경우
+        // Debug 설정일 때 함수 호출 오버해드로 인해서
+        // 한번의 함수 호출로 구현해둔 함수에 비해 느릴 수 있다.
+        unsigned long long Result4 = Factorial(10);
+        std::cout << Result4 << std::endl;
+    }
+#pragma endregion
+
+#pragma region 11. Bit flag
+    {
+        unsigned char Property1 = EPropertyFlags::EProperty1;
+        HasFlags(Property1);
+        unsigned char Property3 = EPropertyFlags::EProperty3;
+        HasFlags(Property3);
+
+        // 0000 0001
+        // 0000 0100
+        // --------- OR
+        // 0000 0101
+        unsigned char Property13 = EPropertyFlags::EProperty1 | EPropertyFlags::EProperty3;
+        HasFlags(Property13);
+
+        unsigned char Property135 = Property13;
+        //Property135 = Property135 | EPropertyFlags::EProperty5;
+        Property135 |= EPropertyFlags::EProperty5;
+        HasFlags(Property135);
+
+        unsigned char Property35 = Property135;
+
+        // EPropertyFlags::EProperty1 : 0000 0001
+        // ~EPropertyFlags::EProperty1: 1111 1110
+        // 0001 0101
+        // 1111 1110
+        // --------- AND
+        // 0001 0100
+
+        Property35 = Property35 & ~EPropertyFlags::EProperty1;
+        HasFlags(Property35);
+
+        // 0000 0010
+        // 0000 1000
+        // ---------- OR
+        // 0000 1010
+        unsigned char Toggle = EProperty2 | EProperty4;
+        HasFlags(Toggle);
+
+        // 0000 1010 (2, 4)
+        // 0000 1000 (4)
+        // --------- XOR (같으면 0 다르면 1)
+        // 0000 0010 (2)
+        Toggle ^= EProperty4;
+        HasFlags(Toggle);
+        // 0000 0010 (2)
+        // 0000 1000 (4)
+        // --------- XOR
+        // 0000 1010 (2,4)
+        Toggle = Toggle ^ EProperty4;
+        HasFlags(Toggle);
+
+        unsigned char Flags = EPropertyFlags::ENone;
+        // 지정
+        Flags = EProperty1;
+
+        // 켜기
+        Flags |= EProperty2;
+
+        // 끄기
+        Flags &= ~EProperty2;
+
+        // 토글(껏다 켰다)
+        Flags ^= EProperty3;    // 켜짐
+        Flags ^= EProperty3;    // 꺼짐
+        Flags ^= EProperty3;    // 켜짐
+        Flags ^= EProperty3;    // 꺼짐
+    }
+#pragma endregion
+
+#pragma region 12. 배열(array)
+    {
+        int a{}, b{}, c{};
+        a = 1;
+        b = 2;
+        c = 3;
+
+        // 1차원 배열
+        {
+            // int 데이터 5개(count)를 만들겠다
+            int Array[5]{ 5,4,1,8,3 };
+            int aa = 99;
+            // 0번 index(또는 원소)에 1을 넣겠다
+            // Array의 시작 주소로 부터 타입의 크기(int) * 인덱스만큼 건너뛴 메모리 값을 편집한다
+            // Array 시작주소 + TypeSize(int) * index
+            Array[0] = 1;
+            Array[1] = 2;
+            Array[2] = 3;
+            Array[3] = 4;
+            Array[4] = 5;
+            //Array[5] = 6;
+
+            int Size = sizeof(int);     // 4Byte
+            int Size2 = sizeof(Size);   // 4Byte
+            int ArraySize = sizeof(Array); // 20Byte: int(4) * 갯수(count:5) = 20
+            int ArrayElemSize = sizeof(Array[0]);   // 4Byte
+            int ArrayElemCount = ArraySize / ArrayElemSize; // 20 / 4 = 5
+        }
+        // 2차원 배열
+        {
+            // Array[0][0] Array[0][1] Array[0][2] Array[1][0] Array[1][1] Array[1][2]
+            int Array[2][3]{};
+            Array[0][0] = 0;
+            Array[0][1] = 1;
+            Array[0][2] = 2;
+            Array[1][0] = 3;
+            Array[1][1] = 4;
+            Array[1][2] = 5;
+        }
+        
+        // 1차원 배열 (std::array)
+        {
+            std::array<int, 5> Array{0,5,3,1,5};
+            Array[0] = 0;
+            Array[1] = 1;
+            Array[2] = 2;
+            Array[3] = 3;
+            Array[4] = 4;
+
+            // typedef unsigned __int64 size_t;
+            // typedef는 왼쪽에 있는 타입을 오른족에 있는 이름으로 바꿔서 쓸 수 있게 해준다
+            size_t Size = Array.size();
+        }
+    }
+#pragma endregion
+
+#pragma region 13. 반복문(loop)**
+    {
+        // while
+        {
+            int i = 0;
+            while (i < 5)
+            {
+                std::cout << std::format("i: {}\n", i);
+                ++i;
+
+                if (i == 3)
+                {
+                    std::cout << "i가 3일때 탈출!\n";
+                    break;
+                }
+            }
+        }
+        // do while
+        {
+            // while과는 다르게 조건을 만족하지 못했을 때도
+            // 처음 한번은 실행 해준다
+            int i{ 30 };
+            do
+            {
+                std::cout << "Test\n";
+            } while (i < 5);
+        }
+        // for
+        {
+            //  초기화;           판별식; for문이 한번 끝나고 실행될 코드
+            for (int i = 0,j = 5; i < 5; ++i, ++j, FirstTrue())
+            {
+                std::cout << std::format("i: {}, j: {}\n", i, j);
+            }
+            // int i = 10;
+
+            const int Size = 6;
+            int Array[Size]{};
+            for (int i = 0; i < Size; ++i)
+            {
+                //Array[0] = 0;
+                //Array[1] = 1;
+                Array[i] = i;
+            }
+
+            // 범위기반 for(range based for)
+            for (int i : Array)
+            {
+                std::cout << i << std::endl;
+            }
+
+            std::array<int, Size> StdArray{};
+            size_t ArraySize = StdArray.size();
+            for (size_t i = 0; i < ArraySize; ++i)
+            {
+                StdArray[i] = i;
+            }
+
+            for (int i : StdArray)
+            {
+                std::cout << std::format("i값은: {}\n", i);
+            }
+
+            // CTAD(class template argument deduction: 클래스 템플릿 인수 추론)
+            // C++20
+            for (std::array Array2{ 1,2,3 }; int i : Array2)
+            {
+                std::cout << std::format("i값은: {}\n", i);
+            }
+            //Array2;
+
+            // 추가적으로, if 도 조건문 이전에 int i = 0; 와 같이 초기화 구문을 넣을 수 있다.
+            if (int i = 0; i < 10)
+            {
+
+            }
+        }
+    }
+#pragma endregion
+
+#pragma region 14. 포인터와 동적 할당(pointer*****, dynamic allocation) + 레퍼런스*****(Reference; 참조)
+    {
+        // 메모리 할당과 이를 관리하는 것은 C++프로그래밍에서 문제가 발생하기 쉬운 영역입니다.
+        // 품질이 뛰어난 C++프로그램을 작성하기 위해서는 메모리 내부 작동 방식을 이해하고 있어야 합니다.
+        // 이번 시간에는 동적 메모리를 다루는 과정에서 어떤 위험에 빠지기 쉬운지 알아보고 이런 상황을
+        // 해결하거나 애초에 방지하는 방법을 알아보겠습니다.
+
+        // low-level(저수준; 낮은수준) 메모리 연산 방법은 new, new[], delete, delete[]
+        // 또는 C스타일의 malloc(memory allocation), free라는 함수를 사용하는 방법이 있습니다.
+        // 요즘 와서는 로우레벨 메모리 연산을 최대한 피하는 추세라고 생각됩니다.
+        // 저도 실무에서 활동할때 저수준의 동적 할당을 사용했던 적이 몇번 없었던 것 같습니다.
+        // 예를 들면 표준 라이브러리에서 제공하는 vector라는 컨테이너(동적 배열)가 있는데
+        // 이를 사용하면 필요할 때 메모리를 늘리거나 줄일 수 있습니다.
+        // 또는 동적으로 할당한 메모리를 사용하지 않으면 자동으로 해제해주는 shared_ptr 등의
+        // 스마트 포인터를 사용하기도 합니다.
+
+        // 동적 메모리를 이용하면 컴파일 시간에 크기를 확정할 수 없는 데이터를 다룰 수 있습니다.
+        {
+            // 지역변수는 시작과 끝 스코프({}) 내부에서 선언되는 변수를 의미합니다.
+
+            // 유저 영역의 메모리 공간은 크게 4구획을 나누어 져있다고 생각하시면 편합니다.
+            // [코드 영역]   : 소스코드가 기계어로 변환되어 실제 로직을 수행하는 코드 정보
+            // [데이터 영역] : 전역변수, static변수 등
+            // [Heap]        : 동적 할당 (아직 배우지 않음)
+            // [Stack]       : 지역 변수
+
+
+            // [프로그램의 메모리 구조]
+            // ---------------- 소스 코드 영역 -------------
+            // ... 여러분 또는 누군가가 작성해둔 코드가 어셈으로 기록되어 있다
+            // -----------------데이터 영역 ----------------
+            // ... 전역변수, static(정적) 변수
+            // ----------------- Heap 영역 -----------------
+            // ... 동적 할당 (실행 중에 메모리 요청을 하는 것)
+            // ..
+            // ..
+            // 
+            // 
+            // .. 
+            // // 지역 변수, 함수 호출 이후 복귀 주소 등
+            // --------------- Stack 영역 ------------------
+
+            // 실행시간(런타임;Run time)에 동적으로 메모리 공간이 필요한 경우 OS(운영체제; Operating System)
+            // 에 메모리를 요청해야 하는데, 이런 과정에서 커널에 요청할 필요가 있습니다.
+            // 커널은 OS 중 항상 메모리에 올라가 있는 운영체제의 핵심 부분으로, 하드웨어와 응용 프로그램
+            // 사이에서 인터페이스 역할을 제공합니다.
+            // 커널에 요청하는 경우 이를 system call이라고 합니다. (메모리 할당을 할때마다 system call이 발생
+            // 하지는 않을 수 있습니다)
+            // 이 system call은 유저 영역과 커널 영역을 넘나드는 호출로서 상당한 비용을 지불하게 됩니다.
+        }
+        {
+            // 64비트 환경에서는 포인터의 크기가 8Byte
+            // 32비트 환경에서는 포인터의 크기가 4Byte
+            // [Stack]                                      // [Heap]
+            // [0xfff] Pointer(8Byte;64bit기준) = nullptr
+
+            // Pointer 변수는 주소를 들고 있을 것이다.
+            // 그리고, 그 주소로 접근하며 int 변수가 있을 것이다.
+            int* Pointer{ nullptr }; // 실제 값은 0, 프로그래머를 위해서 0을
+            // 쓰는 것 보다 nullptr을 넣어주면 더 명확하게 의미를 전달 할 수 있다.
+
+            // 포인터의 크기는 플랫폼 bit수에(Ex.64 or 32) 대응해서 변경됩니다.
+            // 32bit라면 최대 표현 가능한 주소가 FFFF FFFF(10진수로 4,294,967,295) 으로
+            // unsigned int 범위에 해당한다. 즉 4byte만 있으면 모든 32bit 주소를 표현 할 수 있다.
+            // 64bit 라면 FFFF FFFF FFFF FFFF 까지 총 8Byte로 모든 주소를 표현 할 수 있다.
+
+            // [Stack]                                      // [Heap]
+            // [0xfff..] Size (8Byte; size_t 의 크기가 64bit에서는 8Byte)
+            // [0xfff..] Size2
+            // int*의 의미는 지금 내가 가지고 있는 주소(*)로 가면 그 값은 int야 라는 의미
+            size_t Size = sizeof(int*);
+            // char*의 의미는 지금 내가 가지고 있는 주소(*)로 가면 그 값은 char야 라는 의미
+            size_t Size2 = sizeof(char*);
+        }
+        {
+            // [Stack]                                      // [Heap]
+            // [0xfff...] a(4Byte) = 100
+            // [0xfff...] 4Byte padding
+            // [0xfff...] Pointer(8Byte) = nullptr
+            // [0xfff...] b(4Byte) = 20
+            int a = 100;
+            int* Pointer{ nullptr };
+            int b = 20;
+
+            // [Stack]                                      // [Heap]
+            // [0xfff...] a(4Byte) = 100
+            // [0xfff...] 4Byte padding
+            // [0xfff...] Pointer(8Byte) = 0x100   <-------    [0x100] int[4Byte] = 10
+            // [0xfff...] b(4Byte) = 20
+            Pointer = new int{ 10 };
+
+            // [Stack]                                      // [Heap]
+            // [0xfff...] Pointer(8Byte) = 0x100   <-------    [0x100] int[4Byte] = 10 -> 999
+            // 이곳에 붙은 포인터 기호는 역참조 연산이라고 이야기 한다
+            *Pointer = 999;
+
+            // [Stack]                                      // [Heap]
+            // [0xfff...] Pointer(8Byte) = 0x100   <-------    [0x100] int[4Byte] = 999
+            // [0xfff...] Read(4Byte) = 999
+            int Read = *Pointer;
+
+            // 할당한 Memory를 해제
+            delete Pointer;
+            // int Read2 = *Pointer;
+
+            // https://en.wikipedia.org/wiki/Magic_number_(programming)
+            {
+                // [Stack]                                      // [Heap]
+                // [0xfffffff0] a(4Byte) = 100
+                // ...
+                // [0xfff...] Pointer2(8Byte) = 0xfffffff0;
+                int* Ponter2 = &a;
+                std::cout << std::format("Pointer2: {:X} &a: {:X}, *Pointer2: {}, a: {}\n", (size_t)Ponter2, (size_t)&a, *Ponter2, a);
+                *Ponter2 = 1234;
+
+                std::cout << std::format("Pointer2: {:X} &a: {:X}, *Pointer2: {}, a: {}\n", (size_t)Ponter2, (size_t)&a, *Ponter2, a);
+                // int* Ponter3 = (int*)0xFFFFFFFFFFFFFFFF;
+            }
+        }
+        {
+            // [Stack]                                      // [Heap]
+            // [0xfff...] Pointer(8Byte) = 0x100
+            int* Pointer{ nullptr };
+
+            // [Stack]                                      // [Heap]
+            // [0xfff...] Pointer(8Byte) = 0x100   <-------    [0x100] int[4Byte] = 10
+            Pointer = new int{ 10 };
+            
+            // 할당한 메모리를 해제하지 않고 넘어가는 경우 이를,
+            // 메모리 누수(메모리 릭, memory leak)이라고 부릅니다.
+
+            // 동적 할당한 메모리를 다른 주소로 덮어 쓰는 경우에도 
+            // 원본 주소를 해제할 수 없다.
+            // Pointer = (int*)10000;
+            
+            int* TempPointer = Pointer;
+            *TempPointer = 100;
+            delete Pointer;
+
+            // 댕글링 포인터: 이미 해제된 메모리 주소를 들고 있는 상황
+            // 이떄 해당 memory에 write하는 경우 프로그램이 죽을수도 있고
+            // 잘 동작 할 수 도 있다. 하지만 잠재적인 위험이 아주 높다.
+            // 가끔 잘 동작하다가 죽는 버그 원인을 찾았더니 댕글링 포인터가 원인인
+            // 경우들이 종종 발견 됩니다.
+            *TempPointer = 100;
+        }
+        {
+            // C언어를 배우셨다면 malloc을 사용해서 메모리를 할당 했을 텐데,
+            // C++에서도 사용할 수 있습니다.
+            // malloc과 new는 큰 차이가 있습니다.
+            // 아직 배우지는 않았지만, new와 delete는 초기화 및 struct 또는 class에서
+            // 생성자와 소멸자를 호출해주는 역할을 수행합니다.
+            // 그러나, malloc는 순수하게 memory 할당만 해줍니다.
+            // int*를 new로 동적할당 할때는 초기화를 할 수 있었습니다.
+            // 하지만, malloc은 초기화 불가
+            int* Pointer = (int*)malloc(sizeof(int));
+            *Pointer = 1000;
+            free(Pointer);
+        }
+        {
+            // [Stack]                                          // [Heap]
+            // [0xfff...] Pointer(8Byte) = 0x100                0x100 [int][int][int][int][int][int]
+            int* ArrayPointer = new int[6] {0, 1, 2, 3, 4, 5};
+            ArrayPointer[0] = 1000;
+            ArrayPointer[1] = 1200;
+
+            // 0x100 + 0 * sizeof(int) = 0x100
+            *ArrayPointer = 9999;
+            // 0x100 + 1 * sizeof(int) = 0x104
+            *(ArrayPointer + 1) = 8888;
+
+            for (int i = 0; i < 6; ++i)
+            {
+                ArrayPointer[i] = i + 10;
+
+                // Array(int*) + 0  Array + 1       Array + 2       Array + 3
+                // [00 00 00 01]    [00 00 00 02]   [00 00 00 03]   [00 00 00 04]...
+                *(ArrayPointer + i) = i;
+            }
+            // 1, 2,3 이렇게 주소로 부터 상대적으로 떨어진 위치를 말로 표현할때 offset이라고 이야기
+            // 하는 경우가 있다.
+            *((char*)ArrayPointer + 1) = 255;
+            *((char*)ArrayPointer + 2) = 255;
+            *((char*)ArrayPointer + 3) = 255;
+            *((short*)ArrayPointer + 1) = 9999;
+            *((__int64*)ArrayPointer + 0) = 9999;
+            *((__int64*)ArrayPointer + 1) = 9999;
+            delete[] ArrayPointer;
+
+            // 2차원 이상 배열도 동적 할당으로 구현 가능하나,
+            // 저는 실무에서 사용할 일이 없었습니다.
+        }
+        {
+            struct FStruct
+            {
+                // 생성자: 인스턴스가 만들어질때 호출되는 함수
+                // __thiscall: 호출하는 쪽에서 파라미터로 자기자신의 주소를 전달
+                FStruct(/*FStruct* This*/)
+                {
+                    // this + 0Byte => Value
+                    // this + 4Byte => Value2
+                    this;
+                    int a = this->Value;
+                    int B = this->Value2;
+                    std::cout << std::format("V: {}, V2: {}\n", this->Value, Value2);
+                }
+                FStruct(const int InValue)
+                    // 초기화 순서는 변수를 선언한 순서대로 동작한다
+                    : /*Value2(Value),*/ Value(InValue)/*, Value2(Value)*/
+                {
+                    std::cout << std::format("V: {}, V2: {}\n", Value, Value2);
+                }
+                // 소멸자: 인스턴스가 소멸되는 시점에 호출되는 함수
+                // 컴파일러가 소멸예측 지점 (Stack: 스코프를 벗어나는 지점, Heap: delete를 하는 시점)
+                // 에 코드에 소멸자를 호출하도록 심어둔다
+                ~FStruct()
+                {
+                }
+                int Value = 10;
+                int Value2 = 20;
+            };
+            FStruct Struct = FStruct();
+            Struct.Value;
+            FStruct Struct2 = FStruct(100);
+
+            FStruct* StructPointer = new FStruct(12);
+            StructPointer->Value = 999;
+            int* Test = (int*)StructPointer + 1;
+            *Test = 888;
+            delete StructPointer;
+
+            {
+                // malloc은 요청한 size만큼 메모리 블록만 할당.
+                // new는 요청한 size만큼 메모리 블록을 할당 후 초기화(struct 와 같은 경우 생성자 호출)
+                FStruct* MallocStruct = (FStruct*)malloc(sizeof(FStruct));
+
+                // free는 해당 메모리 블록을 할당 해제
+                // delete와 다르게 소멸자는 호출하지 않는다
+                free(MallocStruct);
+            }
+
+            // 저수준의 동적할당은 사용빈도가 줄었다고 했지만,
+            // 포인터는 사용하지 않는날이 없는 수준
+
+            {
+                int Value = 0;
+                // Function call, 인자 복사
+                // int InValue = Value;
+                // Value = InValue;
+                Value = CallByValue(Value);
+
+                FParam Param = FParam();
+                Param.Value[2] = 1234;
+
+                // Call by value로 함수 호출을 한 경우
+                // FParam InParam = FParam(Param);
+                // FParam Temp = InParam; // 복사 생성자 호출됨(함수 리턴 되기 직전에 InParam을 임시 변수에 Backup)
+                // InParam.~FParam(); // 소멸자 호출
+                // Param.operator=(Temp); // 대입 연산자 호출됨
+                // Temp.~FParam(); // 소멸자 호출
+                // Param.~FParam(); // 소멸자 호출
+                Param = CallByValue(Param);
+            }
+            {
+                int a = 0;
+                int* Pointer = &a;
+                a = 999;
+                //*Pointer = 1234;
+
+                /*int* InPointer = Pointer;
+                *InPointer = 1234;
+                *Pointer = 1234;*/
+                CallByPointer(&a);
+                CallByPointer(Pointer);
+
+                FParam Param = FParam();
+                FParam* ParamPointer = &Param;
+
+                FParam* InPointer = &Param;
+                InPointer->Value[0] = 9999;
+                InPointer->Value[5] = 5555;
+                (*InPointer).Value[0] = 1234;
+                CallByPointer(&Param);
+                CallByPointer(ParamPointer);
+            }
+            {
+                FParam Param; TestConstructor(&Param);
+
+                FTTest TTest;
+                TestConstructor(&TTest);
+
+                int a = 200;
+                int b = 400;
+
+                TestConstructor((void*)&a);
+            }
+            {
+                // 레퍼런스, 참조
+
+                // 포인터와 레퍼런스의 차이
+
+                int a = 5;
+                int* Pointer = &a;  // 대상을 a로 변경
+                *Pointer = 100;     // a의 값이 변경됨
+
+                // Pointer는 가리키던 대상을 바꿀 수 있다.
+                int b = 999;
+                Pointer = &b;       // 대상을 b로 변경
+                *Pointer = 1234;    // b의 값이 변경됨
+
+                int* const PointerLikeReference = &a;
+                // PointerLikeReference = &b; // * 오른쪽에 const가 붙어 있으면 가리키던 대상을 바꿀 수 없다
+                *PointerLikeReference = 10000;
+                const int* ConstPointer = &a; // * 왼쪽에 const가 붙어 있으면 가리키던 대상의 값을 바꿀 수 없다.
+                //*ConstPointer = 9999;
+                ConstPointer = &b;
+
+                const int* const PointerCantChnage = &a; // 둘다 변경 불가!
+                /*PointerCantChnage = &b;
+                *PointerCantChnage = 1000;*/
+
+                int& Reference = a; // 처음 초기화 시점에 반드시 대상이 와야하며, 이후 변경할 수 없다.
+                Reference = b;      // 주소가 바뀌는 것이 아니라, 처음 연동한 a의 값이 b에 있는 값(1234)로 변경 된다.
+                // Reference = &b;  // 이후 가리키던 주소를 변경할 수 없다.
+
+                int TestValue = 0;
+                CallByReference(TestValue);
+                CallByPointer(&TestValue);
+
+                FParam Param;
+                CallByReference(Param);
+            }
+        }
+        
+        {
+            int* Pointer = nullptr;
+            FunctionWithPointer(Pointer);
+            int a = 10;
+            FunctionWithPointer(&a);
+
+            if (Pointer == nullptr)
+            {
+                Pointer = new int{ 5 };
+                FunctionWithPointer(Pointer);
+
+                int* PointerB = Pointer;
+                SAFE_DELETE(Pointer);
+                FunctionWithPointer(Pointer);
+
+                Wow hello;
+                HI;
+                if (Hmm(10, 20)) // 이런 메크로는 사용하지 마세요
+                {
+
+                }
+
+                // PointerB는 댕글링 포인터
+                // 이미 delete된 메모리 주소를 들고 있는 상황
+                //FunctionWithPointer(PointerB);
+            }
+
+            {
+                int* PointerB = new int{ 5 };
+                int& ReferenceB = *PointerB;
+                ReferenceB = 999;
+                *PointerB = 1234;
+                SAFE_DELETE(PointerB);
+                FunctionWithReference(ReferenceB);
+            }
+        }
+        {
+            int a = 20, b = 10;
+            Swap(&a, &b);
+
+            std::array Numbers{ 1,2,3,4,5,6,7,8,9,10 };
+            std::vector<int> Odds, Evens;
+            SeperateOddsAndEvens(Numbers, Odds, Evens);
+        }
+    }
+#pragma endregion
+}
+
+void Function2()
+{
+
 }
 
 // 프로그램 실행: <Ctrl+F5> 또는 [디버그] > [디버깅하지 않고 시작] 메뉴

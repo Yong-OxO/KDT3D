@@ -11,6 +11,9 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 
+POINT ptObjPos = { 700, 300 };
+POINT ptObjScale = { 100, 100 };
+
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -154,7 +157,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HBRUSH hBlueBrush = CreateSolidBrush(RGB(0, 0, 255));
             HBRUSH hDefaultBrush = (HBRUSH)SelectObject(hdc, hBlueBrush);
 
-            Rectangle(hdc, 10, 10, 110, 110);
+            Rectangle(hdc, 
+                ptObjPos.x - ptObjScale.x / 2, 
+                ptObjPos.y - ptObjScale.y / 2,
+                ptObjPos.x + ptObjScale.x / 2,
+                ptObjPos.y + ptObjScale.y / 2);
 
             (HPEN)SelectObject(hdc, DefaultPen);
             (HBRUSH)SelectObject(hdc, hDefaultBrush);
@@ -168,6 +175,47 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+    case WM_KEYDOWN:
+    {
+        switch (wParam)
+        {
+        case VK_UP:
+            ptObjPos.y -= 10;
+            InvalidateRect(hWnd, nullptr, true);
+            break;
+
+        case VK_DOWN:
+            ptObjPos.y += 10;
+            InvalidateRect(hWnd, nullptr, true);
+            break;
+
+        case VK_LEFT:
+            ptObjPos.x -= 10;
+            InvalidateRect(hWnd, nullptr, true);
+            break;
+
+        case VK_RIGHT:
+            ptObjPos.x += 10;
+            InvalidateRect(hWnd, nullptr, true);
+            break;       
+        }
+    }
+        break;
+
+    case WM_LBUTTONDOWN:
+    {
+        
+        InvalidateRect(hWnd, nullptr, true);
+    }
+        break;
+
+    case WM_MOUSEMOVE:
+    {
+
+        InvalidateRect(hWnd, nullptr, true);
+    }
+        break;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -190,6 +238,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             return (INT_PTR)TRUE;
         }
         break;
+
     }
     return (INT_PTR)FALSE;
 }

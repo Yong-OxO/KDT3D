@@ -1,59 +1,82 @@
 #include <iostream>
-#include <queue>
+#include <array>
 #include <vector>
-#include <algorithm>
-#define MAX 501
-using namespace std;
+#include <format>
 
-int n;
-vector<int> edge[MAX];//간선 저장(먼저 지어져야 하는 건물)
-int inDegree[MAX];//진입 차수 저장
-int cost[MAX];//비용 저장
-int dp[MAX];//각 건물까지 드는 비용 저장
+void Swap(int* const pInOutFirst, int* const pInOutSecond)
+{
+	std::cout << std::format("Swap 전 a : {}, b : {}\n", *pInOutFirst, *pInOutSecond);
 
-void topologicalSort() {
-    queue<int> q;
-    for (int i = 1; i <= n; i++) {
-        if (inDegree[i] == 0) {
-            q.push(i);
-            dp[i] = cost[i];
-        }
-    }
+	// Temp = InOutFirst(20)
+	const int Temp = *pInOutFirst;
 
+	// InOutFirst = 10(b);
+	*pInOutFirst = *pInOutSecond;
 
-    while (!q.empty()) {
-        int cur_node = q.front();
-        q.pop();
-        for (int i = 0; i < edge[cur_node].size(); i++) {
-            int next = edge[cur_node][i];
-            if (--inDegree[next] == 0) {
-                q.push(next);
+	// InOutSecond = 20(Temp; a)
+	*pInOutSecond = Temp;
 
-            }
-            dp[next] = max(dp[next], cost[next] + dp[cur_node]);
-        }
-
-    }
-    for (int i = 1; i <= n; i++)
-        cout << dp[i] << '\n';
+	std::cout << std::format("Swap 후 a : {}, b : {}\n", *pInOutFirst, *pInOutSecond);
 }
+
+void SeperateOddsAndEvens(
+	const std::array<int, 10>& RefInNumbers,
+	std::vector<int>& RefOutOdds,
+	std::vector<int>& RefOutEvens)
+{
+	std::cout << "Array : ";
+	for (int Value : RefInNumbers)
+	{
+		std::cout << Value << " ";
+
+		// 홀수 판정
+		// 1 / 2: 몫:0 나머지:1 => 홀수
+		// 2 / 2: 몫:0 나머지:0 => 짝수
+		// 3 / 2: 몫:1 나머지:1 => 홀수
+		// 4 / 2: 몫:2 나머지:0 => 짝수
+		if (Value % 2 == 1) // 홀수(나머지가 1)
+		{
+			RefOutOdds.push_back(Value);
+		}
+		else if (Value % 2 == 0) // 짝수(나머지가 0)
+		{
+			RefOutEvens.push_back(Value);
+		}
+		else
+		{
+			// 혹시 여기 들어오면 한번 쯤 봐야겠다...
+			_ASSERT(false);
+		}
+	}
+	std::cout << "\n";
+
+	// Odds 출력
+	std::cout << "Odds : ";
+	for (int i = 0; i < RefOutOdds.size(); ++i)
+	{
+		std::cout << RefOutOdds[i] << " ";
+	}
+	std::cout << "\n";
+
+	// Evens 출력
+	std::cout << "Evens: ";
+	for (int i = 0; i < RefOutEvens.size(); ++i)
+	{
+		std::cout << RefOutEvens[i] << " ";
+	}
+	std::cout << "\n";
+}
+
+
 int main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
+	int a = 20, b = 10;
+	Swap(&a, &b);
 
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> cost[i];
-        int input;
-        cin >> input;
-        while (input != -1) {
-            inDegree[i]++;
-            edge[input].push_back(i);
-            cin >> input;
-        }
-    }
-    topologicalSort();
-    return 0;
+	std::array Numbers{ 1,2,3,4,5,6,7,8,9,10 };
+	std::vector<int> Odds, Evens;
+	SeperateOddsAndEvens(Numbers, Odds, Evens);
+
+	return 0;
 }
+
