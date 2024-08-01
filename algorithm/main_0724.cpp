@@ -2,6 +2,7 @@
 #include <array>
 #include <vector>
 #include <format>
+#include <memory>
 
 void Swap(int* const pInOutFirst, int* const pInOutSecond)
 {
@@ -67,16 +68,24 @@ void SeperateOddsAndEvens(
 	std::cout << "\n";
 }
 
+class Test 
+{
+public:
+	int a = 10;
 
+	std::unique_ptr<int> p_a = std::make_unique<int>(5);
+
+	void Print()
+	{
+		std::cout << "Hello" << std::endl;
+	}
+};
+
+#include <functional>
 int main()
 {
-	int a = 20, b = 10;
-	Swap(&a, &b);
-
-	std::array Numbers{ 1,2,3,4,5,6,7,8,9,10 };
-	std::vector<int> Odds, Evens;
-	SeperateOddsAndEvens(Numbers, Odds, Evens);
-
-	return 0;
+	Test t;
+	
+	void (*TestPrint)() = Test::Print;
 }
 
