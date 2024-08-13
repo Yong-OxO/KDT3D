@@ -564,8 +564,6 @@ int main()
             std::cout << i << ", ";
         }
         std::cout << "\nRandom end ---- \n";
-
-
     }
 #pragma endregion
 }

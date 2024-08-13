@@ -74,6 +74,10 @@ void CallByPointer(int* OutPointer);
 void CallByReference(int& OutReference);
 void CallByPointer(FParam* OutPointer);
 void CallByReference(FParam& OutReference);
+void TestUnique(std::unique_ptr<int>& OutUnique);
+void TestUnique(std::unique_ptr<int>* OutUnique);
+void TestShared(std::shared_ptr<int> OutShared);
+void TestWeak(std::weak_ptr<FParam> OutWeak);
 
 inline void TestConstructor(FParam* InThis)
 {
@@ -117,7 +121,7 @@ void FunctionWithReference(int& OutPointer);
 #define Hmm(a, b) a < b
 
 void Swap(int& InOutFirst, int& InOutSecond);
-void Swap(int* const pInOutFirst, int* const pInOutSecond);
+void Swap(int* InOutFirst, int* InOutSecond);
 
 #include <array>
 #include <vector>
@@ -126,12 +130,49 @@ void Swap(int* const pInOutFirst, int* const pInOutSecond);
 // const std::array<int, 10>* const InNumbers: 입력으로 들어올 숫자들
 // OutOdds: 홀수
 // OutEvens: 짝수
-void SeperateOddsAndEvens(
-	const std::array<int, 10>* const InNumbers, 
-	std::vector<int>* const OutOdds, 
-	std::vector<int>* const OutEvens);
+void SeperateOddsAndEvens(const std::array<int, 10>* const InNumbers, 
+	std::vector<int>* const OutOdds, std::vector<int>* const OutEvens);
+void SeperateOddsAndEvens(const std::array<int, 10>& InNumbers, 
+	std::vector<int>& OutOdds, std::vector<int>& OutEvens);
 
-void SeperateOddsAndEvens(
-	const std::array<int, 10>& RefInNumbers,
-	std::vector<int>& RefOutOdds,
-	std::vector<int>& RefOutEvens)
+					// 상속: 쉽게 생각해서 누군가 이미 만들어둔 기능을 내가 가져와서 쓰겠다
+struct FSharedTest : public std::enable_shared_from_this<FSharedTest>
+{
+	FSharedTest() {}
+	FSharedTest(int InA) : A(InA) {}
+
+	void Hello()
+	{
+		std::cout << "Hello " << A << std::endl;
+	}
+
+	int A = 100;
+};
+
+void SharedTestFunction(std::shared_ptr<FSharedTest> InShared);
+
+
+struct FOddsAndEvens
+{
+	FOddsAndEvens() {}
+	FOddsAndEvens(std::vector<int>& InOdds, std::vector<int>& InEvens) 
+	: Odds(move(InOdds)), Evens(move(InEvens)) {}
+
+	FOddsAndEvens(const FOddsAndEvens&) 
+	{
+		std::cout << "FOddsAndEvens(const FOddsAndEvens&)\n";
+	}
+
+	void operator=(const FOddsAndEvens&) 
+	{
+		std::cout << "operator=(const FOddsAndEvens&)\n";
+	}
+
+	std::vector<int> Odds;
+	std::vector<int> Evens;
+};
+
+// RVO
+[[nodiscard("RVO")]] FOddsAndEvens SeperateOddsAndEvens(const std::array<int, 10>& const InNumbers);
+// NRVO
+[[nodiscard("NRVO")]] FOddsAndEvens SeperateOddsAndEvens2(const std::array<int, 10>& const InNumbers);

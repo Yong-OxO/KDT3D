@@ -106,6 +106,38 @@ void CallByReference(FParam& OutReference)
 	OutReference.Value[2] = 2222;
 }
 
+void TestUnique(std::unique_ptr<int>& OutUnique)
+{
+	*OutUnique += 100;
+}
+
+void TestUnique(std::unique_ptr<int>* OutUnique)
+{
+	*(*OutUnique) += 100;
+}
+
+void TestShared(std::shared_ptr<int> OutShared)
+{
+	int* Pointer = OutShared.get();
+	*OutShared += 100;
+}
+
+void TestWeak(std::weak_ptr<FParam> OutWeak)
+{
+	if (OutWeak.expired())
+	{
+		//_ASSERT(false);
+		return;
+	}
+
+	std::shared_ptr<FParam> Shared = OutWeak.lock();
+	FParam* Sharedd = Shared.get();
+	long Count = Shared.use_count();
+	Sharedd->A;
+	Shared->A;
+	OutWeak.lock()->A += 1234;
+}
+
 #include <cassert>
 void FunctionWithPointer(int* OutPointer)
 {
@@ -140,28 +172,33 @@ void Swap(int& InOutFirst, int& InOutSecond)
 	InOutSecond = Temp;
 }
 
-#include <format>
-void Swap(int* const pInOutFirst, int* const pInOutSecond)
+void Swap(int* InOutFirst, int* InOutSecond)
 {
-	std::cout << std::format("Swap 전 a : {}, b : {}\n", *pInOutFirst, *pInOutSecond);
+	if (!InOutFirst || !InOutSecond)
+	{
+		_ASSERT(false);
+		return;
+	}
 
-	// Temp = InOutFirst(20)
-	const int Temp = *pInOutFirst;
+	const int Temp = *InOutFirst;
 
-	// InOutFirst = 10(b);
-	*pInOutFirst = *pInOutSecond;
+	*InOutFirst = *InOutSecond;
 
-	// InOutSecond = 20(Temp; a)
-	*pInOutSecond = Temp;
-
-	std::cout << std::format("Swap 후 a : {}, b : {}\n", *pInOutFirst, *pInOutSecond);
+	*InOutSecond = Temp;
 }
 
-void SeperateOddsAndEvens(
-	const std::array<int, 10>* const InNumbers, 
-	std::vector<int>* const OutOdds, 
-	std::vector<int>* const OutEvens)
+void SeperateOddsAndEvens(const std::array<int, 10>* const InNumbers, 
+	std::vector<int>* const OutOdds, std::vector<int>* const OutEvens)
 {
+	if (!OutOdds || !OutEvens)
+	{
+		_ASSERT(false);
+		return;
+	}
+
+	OutOdds->clear();
+	OutEvens->clear();
+
 	for (int Value : *InNumbers)
 	{
 		std::cout << Value << std::endl;
@@ -187,15 +224,14 @@ void SeperateOddsAndEvens(
 	}
 }
 
-void SeperateOddsAndEvens(
-	const std::array<int, 10>& RefInNumbers,
-	std::vector<int>& RefOutOdds,
-	std::vector<int>& RefOutEvens)
+void SeperateOddsAndEvens(const std::array<int, 10>& InNumbers, std::vector<int>& OutOdds, std::vector<int>& OutEvens)
 {
-	std::cout << "Array : ";
-	for (int Value : RefInNumbers)
+	OutOdds.clear();
+	OutEvens.clear();
+
+	for (int Value : InNumbers)
 	{
-		std::cout << Value << " ";
+		std::cout << Value << std::endl;
 
 		// 홀수 판정
 		// 1 / 2: 몫:0 나머지:1 => 홀수
@@ -204,11 +240,11 @@ void SeperateOddsAndEvens(
 		// 4 / 2: 몫:2 나머지:0 => 짝수
 		if (Value % 2 == 1) // 홀수(나머지가 1)
 		{
-			RefOutOdds.push_back(Value);
+			OutOdds.push_back(Value);
 		}
 		else if (Value % 2 == 0) // 짝수(나머지가 0)
 		{
-			RefOutEvens.push_back(Value);
+			OutEvens.push_back(Value);
 		}
 		else
 		{
@@ -216,23 +252,72 @@ void SeperateOddsAndEvens(
 			_ASSERT(false);
 		}
 	}
-	std::cout << "\n";
+}
 
-	// Odds 출력
-	std::cout << "Odds : ";
-	for (int i = 0; i < RefOutOdds.size(); ++i)
-	{
-		std::cout << RefOutOdds[i] << " ";
-	}
-	std::cout << "\n";
+void SharedTestFunction(std::shared_ptr<FSharedTest> InShared)
+{
+	InShared->A = 0;
+}
 
-	// Evens 출력
-	std::cout << "Evens: ";
-	for (int i = 0; i < RefOutEvens.size(); ++i)
+FOddsAndEvens SeperateOddsAndEvens(const std::array<int, 10>& const InNumbers)
+{
+	// RVO
+	std::vector<int> Odds, Evens;
+	for (int Value : InNumbers)
 	{
-		std::cout << RefOutEvens[i] << " ";
+		std::cout << Value << std::endl;
+
+		// 홀수 판정
+		// 1 / 2: 몫:0 나머지:1 => 홀수
+		// 2 / 2: 몫:0 나머지:0 => 짝수
+		// 3 / 2: 몫:1 나머지:1 => 홀수
+		// 4 / 2: 몫:2 나머지:0 => 짝수
+		if (Value % 2 == 1) // 홀수(나머지가 1)
+		{
+			Odds.push_back(Value);
+		}
+		else if (Value % 2 == 0) // 짝수(나머지가 0)
+		{
+			Evens.push_back(Value);
+		}
+		else
+		{
+			// 혹시 여기 들어오면 한번 쯤 봐야겠다...
+			_ASSERT(false);
+		}
 	}
-	std::cout << "\n";
+
+	return FOddsAndEvens(Odds, Evens);
+}
+
+FOddsAndEvens SeperateOddsAndEvens2(const std::array<int, 10>& const InNumbers)
+{
+	// NRVO
+	FOddsAndEvens OddsAndEvens;
+	for (int Value : InNumbers)
+	{
+		std::cout << Value << std::endl;
+
+		// 홀수 판정
+		// 1 / 2: 몫:0 나머지:1 => 홀수
+		// 2 / 2: 몫:0 나머지:0 => 짝수
+		// 3 / 2: 몫:1 나머지:1 => 홀수
+		// 4 / 2: 몫:2 나머지:0 => 짝수
+		if (Value % 2 == 1) // 홀수(나머지가 1)
+		{
+			OddsAndEvens.Odds.push_back(Value);
+		}
+		else if (Value % 2 == 0) // 짝수(나머지가 0)
+		{
+			OddsAndEvens.Evens.push_back(Value);
+		}
+		else
+		{
+			// 혹시 여기 들어오면 한번 쯤 봐야겠다...
+			_ASSERT(false);
+		}
+	}
+	return OddsAndEvens;
 }
 
 FParam::FParam()

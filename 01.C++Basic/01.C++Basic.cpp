@@ -34,9 +34,13 @@
 #include <iostream>
 #include <format>
 #include <array>
+#include <string>
+#include <windows.h>
 #include "Function/Function.h"
 
 int GInt = 0;
+//std::unique_ptr<int> GUnique = std::make_unique<int>(100);
+//int* GTest = new int(100);
 
 bool FirstTrue()
 {
@@ -1506,7 +1510,7 @@ int main()
                 CallByReference(Param);
             }
         }
-        
+
         {
             int* Pointer = nullptr;
             FunctionWithPointer(Pointer);
@@ -1545,12 +1549,376 @@ int main()
         }
         {
             int a = 20, b = 10;
+            Swap(a, b); // a: 10, b: 20
             Swap(&a, &b);
-
+        }
+        {
             std::array Numbers{ 1,2,3,4,5,6,7,8,9,10 };
             std::vector<int> Odds, Evens;
+            SeperateOddsAndEvens(&Numbers, &Odds, &Evens);
+            size_t Size = Odds.size();
+            size_t Capacity = Odds.capacity();
+            Odds.clear(); Evens.clear();
             SeperateOddsAndEvens(Numbers, Odds, Evens);
         }
+    }
+#pragma endregion
+
+#pragma region 15. SmartPointer**
+    {
+        using namespace std;
+        // unique_ptr
+        {
+            // unique_ptr 생성 및 역참조
+            // 소멸자 호출이 되면서 Heap memory를 delete 한다
+            {
+                unique_ptr<int> Unique = make_unique<int>(100);
+                *Unique = 1000;
+            }
+            // 다른 unique_ptr에 대입을 할 수 없다.
+            {
+                unique_ptr<int> Unique = make_unique<int>(100);
+                *Unique = 1000;
+                //unique_ptr<int> Unique2 = Unique;
+                int* Pointer = Unique.get();
+                *Pointer = 999;
+                CallByPointer(Unique.get());
+                TestUnique(Unique);
+                TestUnique(&Unique);
+
+                // 소유권 이전을 통해서 unique_ptr 전달 가능
+                unique_ptr<int> Unique2 = std::move(Unique);
+                int* Pointer2 = Unique.get();
+                int* Pointer3 = Unique2.get();
+
+                //GUnique = move(Unique2);
+            }
+        }
+        //int* Test222 = GUnique.get();
+
+        // shared_ptr
+        {
+            // 레퍼런스 카운팅 방식으로, 참조 횟수를 저장하고 있다가
+            // 0이되면 실제로 Memory를 delete한다
+            shared_ptr<int> SharedPtr;
+            {
+                shared_ptr<int> Shared = make_shared<int>(100);
+                long Count = Shared.use_count();
+                shared_ptr<int> Shared2 = Shared;
+                long Count2 = Shared.use_count();
+                SharedPtr = Shared;
+                long Count3 = Shared.use_count();
+
+                TestShared(Shared);
+            }
+            long Count4 = SharedPtr.use_count();
+            {
+                shared_ptr<FParam> Shared = make_shared<FParam>();
+                shared_ptr<FParam> Shared2 = Shared;
+            }
+            {
+                std::array<shared_ptr<FParam>, 10> Vector;
+                for (size_t i = 0; i < 10; ++i)
+                {
+                    Vector[i] = make_shared<FParam>();
+                }
+            }
+        }
+
+        // shared_ptr + weak_ptr
+        {
+            weak_ptr<FParam> Weak;
+            {
+                shared_ptr<FParam> Shared = make_shared<FParam>();
+                shared_ptr<FParam> Shared2 = Shared;
+                Weak = Shared;
+                TestWeak(Shared);
+                TestWeak(Weak);
+            }
+
+            if (!Weak.expired())
+            {
+                cout << "";
+            }
+            TestWeak(Weak);
+        }
+        // shared_ptr -> .get()으로 Pointer를 뽑아온 다음에
+        // 그 Pointer를 다시 shared_ptr로 바꾸는 방법
+        {
+            shared_ptr<FSharedTest> Shared = make_shared<FSharedTest>(1234);
+
+            {
+                FSharedTest* Test = Shared.get();
+                Test->Hello();
+                Test->A = 123456;
+                Test->Hello();
+                shared_ptr<FSharedTest> SharedTest = Test->shared_from_this();
+                SharedTestFunction(SharedTest);
+                Test->Hello();
+                SharedTestFunction(Test->shared_from_this());
+
+                weak_ptr<FSharedTest> WeakTest = Test->weak_from_this();
+                SharedTest.reset(); // reset을 한다고 하더라도 delete되는 것이 아니다! (해당 인스턴스의) 참조만 까는 것이다.
+                Shared = nullptr; // 모든 참조가 nullptr 또는 reset 되어야 memory가 해제된다.
+                // 따라서 내가 원하는 시점에 delete하기는 번거롭다
+                if (WeakTest.expired())
+                {
+                    std::cout << "expired!!\n";
+                }
+            }
+        }
+    }
+#pragma endregion
+
+#pragma region 16. RVO(Return Value Optimization), NRVO(Named Return Value Optimization)
+    {
+        std::array Numbers{ 1,2,3,4,5,6,7,8,9,10 };
+        {
+            // RVO
+            FOddsAndEvens OddsAndEvens = SeperateOddsAndEvens(Numbers);
+        }
+        {
+            // NRVO
+            FOddsAndEvens OddsAndEvens = SeperateOddsAndEvens2(Numbers);
+        }
+    }
+#pragma endregion
+
+#pragma region 17. Memory 누수(leak, 릭) 탐지
+    {
+        _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+        //_crtBreakAlloc = 405;
+        int* Pointer = new int(10);
+        delete Pointer;
+
+        double* DoublePointer = new double(3.14);
+        delete DoublePointer;
+    }
+#pragma endregion
+
+#pragma region 18. 구조적 바인딩(structured binding)
+    {
+        // 생성자가 없는 경우 사용 가능
+        struct FStruct
+        {
+            // FStruct() {}
+            // FStruct(int InA) : a(InA) {}
+            int a = 0;
+            int b{ 10 };
+            int c = 20;
+        };
+
+        FStruct Instance{};
+        FStruct Instance2{ .a = 10 };
+        FStruct Instance3{ .b = 20, .c = 100 };
+    }
+#pragma endregion
+
+#pragma region 19. 타입 앨리어스(type alias)
+    {
+        typedef int Hello;
+        int a = 50;
+        Hello b = 500;
+
+        typedef int* IntPtr;
+        IntPtr aa = nullptr;
+        aa = &a;
+
+        // 타입 앨리어스
+        using Hello2 = int;
+        Hello2 cc = 100;
+
+        using V = std::vector<int>;
+        V vv = V{ 1,2,3,4,5 };
+        vv.push_back(100);
+        std::vector<int> vvv = std::vector<int>{ 1,2,3,4,5 };
+    }
+#pragma endregion
+
+#pragma region 20. 문자열(string)**
+    {
+        // [Stack]                                      // [data]
+        // [0xfff..] Text(8Byte) = 0x100...             (0x100...)"Hello World!"
+        const char* Text = "Hello World!";
+        // [0xfff..] Text2(8Byte) = 0x100...                
+        const char* Text2 = "Hello World!";
+        // [0xfff..] Text3(8Byte) = 0x100...            (0x100...)"Hello World@"
+        const char* Text3 = "Hello World@";
+        // [0xfff..] TextStack = "Hello World@"
+
+        // 문자열 길이가 12글자 이지만, 배열은 13으로 잡히는데,
+        // 문자열의 끝인 \0 이라는 특수문자(1글자로 취급)가 생략되어 있다.
+        // 그렇기 때문에 총 13자리가 필요
+        const char TextStack[13] = "Hello World@";
+        int Hello = 100;
+
+        // 너무 긴 문자열이 들어오면 heap에 동적 할당
+        // 초기화 시점에 문자열이 결정되고, 짧은 문자열 같은 경우 stack에
+        // 올라올 수 있다.
+        std::string String = "Hello World!";
+        //String.append(" Wow2!");
+        String += " Wow!";
+        String[0] = 'W';
+        String[5] = '_';
+        String = "Oh hello!";
+        std::cout << String << std::endl;
+
+        /*if (Text == Text2)
+        {
+            std::cout << "Same\n";
+        }*/
+    }
+    // 문자열 비교
+    {
+        std::string String = "Hello World!";
+        std::string String2 = "Hello World@";
+        //if (String != String2)
+        if (String == String2)
+        {
+            std::cout << "Same";
+        }
+        else
+        {
+            std::cout << "not Same";
+        }
+    }
+    // 다양한 타입을 문자열
+    // 문자열을 다양한 타입으로 변환
+    {
+        int Value = 5000;
+        float Float = 3.14f;
+        std::string ValueToString = "Value: ";
+        ValueToString += std::to_string(Value);
+        ValueToString += " Float: " + std::to_string(Float);
+
+        ValueToString = std::format("Value: {}, Float: {}", Value, Float);
+
+        std::cout << ValueToString << std::endl;
+    }
+    // 다국어 처리
+    {
+        // UTF-8
+        std::string MultipleLanguage = "Hello 한글 こんにちは 哈罗 صباح الخير\n";
+        MultipleLanguage[6] = '갈'; // 내부적으로 다국어 표기가 1~3Byte를 차지할 수 있기 때문에
+        // 이런 식으로 변경할 수 없을 수 있다.
+
+        // UTF-16
+        wchar_t WideCharacter = L'갈';
+        std::wstring WString = L"Hello 한글 こんにちは 哈罗 صباح الخير\n";
+        WString[6] = L'갈';
+        std::wstring WString2 = TEXT("Hello 한글 こんにちは 哈罗 صباح الخير\n");
+
+        if (WString[6] == L'갈')
+        {
+
+        }
+    }
+#pragma endregion
+
+#pragma region 21. Class(클래스)*****
+    {
+        // 구조체: 함수랑 변수를 묶어서 관리
+        struct FStruct
+        {
+            // 접근지정자
+            // 기본 접근지정자: public
+        public:
+
+            // 생성자: 인스턴스가 만들어질 때 호출
+            //      - 전역변수(Data): 프로그램이 시작할 때
+            //      - 지역변수(Stack): FStruct Instance; 이 코드가 실행되는 시점
+            //      - 동적할당(Heap): new를 호출하는 경우
+            FStruct()
+            {
+                a = 1234;
+                this->b = 6666;
+            }
+
+            // 소멸자: 인스턴스의 수명이 끝날 때 호출
+            //      - 전역변수(Data): 프로그램이 종료되기 전
+            //      - 지역변수(Stack): 스코프({})를 벗어나는 경우
+            //      - 동적할당(Heap): delete를 호출하는 경우
+            ~FStruct()
+            {
+
+            }
+
+            int a = 0;
+        private:    // 외부에서는 접근 불가
+            int b = 20;
+        };
+
+        // Code 영역에 함수
+        // 생성자() 코드
+        // 소멸자() 코드
+
+        // instance는
+        // [int a = 0]
+        // [int b = 20]
+        FStruct Instance;
+        Instance.a = 999;
+        //Instance.b = 1234;
+
+        class FClass
+        {
+            // 접근지정자
+            // 기본 접근지정자: private
+        public:
+            FClass()
+            {
+            }
+
+            FClass(const int NewB)
+                : b(NewB) {}
+
+            ~FClass() {}
+
+            void Hello()
+            {
+                SetB(999);
+                std::cout << std::format("A: {}, B: {}\n", a, b);
+            }
+
+            void SetA(const int NewA)
+            {
+                this->a = NewA;
+            }
+
+            [[nodiscard]] int GetA() const
+            {
+                // 함수 선언 뒤에 const를 붙히면
+                // this pointer가 const this*로 된다.
+                // 즉 맴버 변수를 수정할 수 없고
+                // 맴버 함수는 const가 동일하게 붙어있는 맴버 함수만 호출 할 수 있다.
+                //SetA(10);
+                //int bb = GetB();
+
+                return this->a;
+            }
+
+            [[nodiscard]] int GetB() const
+            {
+                return b;
+            }
+
+        private:
+            void SetB(const int NewB)
+            {
+                b = NewB;
+            }
+
+            int a = 0;
+            int b = 10;
+        };
+
+        FClass ClassInstance;
+        ClassInstance.SetA(100);
+        int A = ClassInstance.GetA();
+        int B = ClassInstance.GetB();
+        FClass ClassInstance2 = FClass(1234);
+        int B2 = ClassInstance2.GetB();
+        ClassInstance2.Hello();
+        B2 = ClassInstance2.GetB();
     }
 #pragma endregion
 }
