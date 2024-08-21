@@ -222,7 +222,6 @@ namespace kdt
 	template<typename _Ty>
 	inline set<_Ty>::Node* set<_Ty>::BST_Delete(Node* InNode)
 	{
-		Node* OutNode = BST_Successor(InNode);
 		Node* ParentNode = InNode->Parent;
 		Node* LeftNode = InNode->Left;
 		Node* RightNode = InNode->Right;
@@ -246,16 +245,20 @@ namespace kdt
 				x->Left = LeftRightNode;
 				LeftRightNode->Parent = x;
 			}
+			
+			return BST_Successor(LeftNode);
 		}
 		else if (RightNode)
 		{
-			if (ParentNode) { ParentNode->Right = RightNode; }
+			ParentNode->Right = RightNode;
 			RightNode->Parent = ParentNode;
 
 			if (RightNode->Parent == nullptr)
 			{
 				RootNode = RightNode;
 			}
+
+			return BST_Successor(RightNode);
 		}
 		else
 		{
@@ -273,7 +276,7 @@ namespace kdt
 				}
 			}
 		}
+
 		delete InNode;
-		return OutNode;
 	}
 }

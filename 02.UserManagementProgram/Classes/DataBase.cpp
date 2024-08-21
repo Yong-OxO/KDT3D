@@ -50,5 +50,21 @@ FAccount* FDataBase::FindAccount(const FAccountName& InID)
 
 void FDataBase::SaveAccountFile(const FAccount& InAccount)
 {
+	const std::string UserDirectory = AccountsDirectory + "\\" + InAccount.ID;
+	{
+		std::string cmd = "mkdir" + UserDirectory;
+		system(cmd.c_str());
+	}
 
+	// json
+	{
+		rapidjson::Document Doc(rapidjson::kObjectType);
+		rapidjson::Value Account(rapidjson::kObjectType);
+
+		Account.AddMember("ID", rapidjson::StringRef(InAccount.ID.data()), Doc.GetAllocator());
+		Account.AddMember("Password", rapidjson::StringRef(InAccount.Password.data()), Doc.GetAllocator());
+		Doc.AddMember("Account", Account, Doc.GetAllocator());
+
+
+	}
 }
