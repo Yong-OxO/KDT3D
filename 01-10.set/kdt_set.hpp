@@ -35,7 +35,7 @@ namespace kdt
 	{
 		Node* NewNode = new Node(InKey, nullptr, nullptr, nullptr);
 		BST_Insert(NewNode);
-		return iterator();
+		return iterator(this, NewNode);
 	}
 
 	template<typename _Ty>
@@ -48,8 +48,8 @@ namespace kdt
 	template<typename _Ty>
 	inline set<_Ty>::iterator set<_Ty>::erase(const iterator& It)
 	{
-
-		return iterator();
+		Node* SuccessorNode = BST_Delete(It.Node);
+		return iterator(this, SuccessorNode);
 	}
 
 	template<typename _Ty>
@@ -166,8 +166,19 @@ namespace kdt
 	template<typename _Ty>
 	inline set<_Ty>::Node* set<_Ty>::BST_Successor(Node* x)
 	{
+		if (x->Right != nullptr)
+		{
+			return BST_Minimum(x->Right);
+		}
 
-		return nullptr;
+		Node* y = x;
+		while (x->Parent == nullptr && y->Right == x)
+		{
+			x = y;
+			y = y->Parent;
+		}
+
+		return y;
 	}
 
 	template<typename _Ty>
@@ -184,7 +195,19 @@ namespace kdt
 	template<typename _Ty>
 	inline set<_Ty>::Node* set<_Ty>::BST_Predecessor(Node* x)
 	{
-		return nullptr;
+		if (x->Left != nullptr)
+		{
+			return(BST_Maximum(x->Left));
+		}
+
+		Node* y = x->Parent;
+		while (x->Parent != nullptr && y->Left == x)
+		{
+			x = y;
+			y = y->Parent;
+		}
+		
+		return y;
 	}
 
 	template<typename _Ty>
@@ -195,5 +218,62 @@ namespace kdt
 			x = x->Right;
 		}
 		return x;
+	}
+	template<typename _Ty>
+	inline set<_Ty>::Node* set<_Ty>::BST_Delete(Node* InNode)
+	{
+		Node* OutNode = BST_Successor(InNode);
+		Node* ParentNode = InNode->Parent;
+		Node* LeftNode = InNode->Left;
+		Node* RightNode = InNode->Right;
+
+		if (LeftNode)
+		{
+			if (LeftNode->Parent == nullptr)
+			{
+				RootNode = LeftNode;
+			}
+
+			Node* LeftRightNode = LeftNode->Right;
+			LeftNode->Parent = ParentNode;
+			LeftNode->Right = RightNode;		
+			if (ParentNode)	{ ParentNode->Left = LeftNode; }
+			RightNode->Parent = LeftNode;
+
+			Node* x = BST_Minimum(LeftNode->Right);
+			if (LeftRightNode && x)
+			{
+				x->Left = LeftRightNode;
+				LeftRightNode->Parent = x;
+			}
+		}
+		else if (RightNode)
+		{
+			if (ParentNode) { ParentNode->Right = RightNode; }
+			RightNode->Parent = ParentNode;
+
+			if (RightNode->Parent == nullptr)
+			{
+				RootNode = RightNode;
+			}
+		}
+		else
+		{
+			if (InNode == ParentNode->Right)
+			{
+				ParentNode->Right = nullptr;
+				InNode->Parent = nullptr;
+			}
+			else
+			{
+				if (InNode == ParentNode->Left)
+				{
+					ParentNode->Left = nullptr;
+					InNode->Parent = nullptr;
+				}
+			}
+		}
+		delete InNode;
+		return OutNode;
 	}
 }

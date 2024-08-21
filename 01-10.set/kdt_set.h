@@ -15,6 +15,8 @@ namespace kdt
 	class _Set_Iterator
 	{
 	public:
+		template<class _Ty>
+		friend class set;
 		_Set_Iterator() = default;
 		_Set_Iterator(set<_Ty>* InSet, FBSTNode<_Ty>* InNode)
 			: Set(InSet),
@@ -58,7 +60,7 @@ namespace kdt
 
 
 	template<typename _Ty>
-	struct FBSTNode 
+	struct FBSTNode
 	{
 		_Ty Key{};
 
@@ -112,6 +114,8 @@ namespace kdt
 		// 전임자 찾기
 		Node* BST_Predecessor(Node* x);
 		Node* BST_Maximum(Node* x);
+
+		Node* BST_Delete(Node* InNode);
 	private:
 		FBSTNode<_Ty>* RootNode = nullptr;
 

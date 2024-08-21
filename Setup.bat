@@ -4,6 +4,7 @@ echo [vcpkg task]
 echo.
 call ./ThirdParty/vcpkg/bootstrap-vcpkg.bat
 .\ThirdParty\vcpkg\vcpkg.exe install rapidjson
+.\ThirdParty\vcpkg\vcpkg.exe install boost:x64-windows
 .\ThirdParty\vcpkg\vcpkg.exe integrate install
 
 pause

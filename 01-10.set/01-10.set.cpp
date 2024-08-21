@@ -9,6 +9,11 @@
 int main()
 {
 	{
+		//			       100
+		//		    50			  150
+		//    20	    55
+		//  19  45    51
+		//    25  46
 		// https://www.cs.usfca.edu/~galles/visualization/BST.html
 		kdt::set<int> Set;
 		Set.insert(100);
