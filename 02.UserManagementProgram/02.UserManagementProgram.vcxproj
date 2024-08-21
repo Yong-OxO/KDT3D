@@ -145,6 +145,7 @@
     <ClCompile Include="Classes\Engine.cpp" />
     <ClCompile Include="Misc\Utils.cpp" />
     <ClCompile Include="Task\CreateAccountTask.cpp" />
+    <ClCompile Include="Task\DeleteAccountTask.cpp" />
     <ClCompile Include="Task\PrintAccountTask.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +156,7 @@
     <ClInclude Include="Misc\Headers.h" />
     <ClInclude Include="Misc\Utils.h" />
     <ClInclude Include="Task\CreateAccountTask.h" />
+    <ClInclude Include="Task\DeleteAccountTask.h" />
     <ClInclude Include="Task\PrintAccountTask.h" />
     <ClInclude Include="Task\Tasks.h" />
   </ItemGroup>

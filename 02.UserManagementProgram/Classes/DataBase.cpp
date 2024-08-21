@@ -40,6 +40,15 @@ FAccount* FDataBase::CreateAccount(const FAccount& InAccount, EErrorCode* const 
 	return &(Pair.first)->second;
 }
 
+EErrorCode FDataBase::DeleteAccount(const FAccount& InAccount)
+{
+	EErrorCode ErrorCode = EErrorCode::ESuccessed;
+
+
+
+	return ErrorCode;
+}
+
 FAccount* FDataBase::FindAccount(const FAccountName& InID)
 {
 	std::unordered_map<FAccountName, FAccount>::iterator It = AccountMap.find(InID);
@@ -47,6 +56,32 @@ FAccount* FDataBase::FindAccount(const FAccountName& InID)
 
 	return &It->second;
 }
+
+FAccount* FDataBase::CheckAccount(const FAccount& InAccount, EErrorCode* const OptionalOutErrorCode, const bool bSaveToFile)
+{
+	if (InAccount.IsEmpty())
+	{
+		if (OptionalOutErrorCode) { *OptionalOutErrorCode = EErrorCode::EEmptyAccount; }
+		return nullptr;
+	}
+
+	FAccount* FoundAccount = FindAccount(InAccount.ID);
+	if (FoundAccount == nullptr)
+	{
+		if (OptionalOutErrorCode) { *OptionalOutErrorCode = EErrorCode::ECanNotFoundAccount; }
+		return nullptr;
+	}
+
+	if (*FoundAccount != InAccount)
+	{
+		if (OptionalOutErrorCode) { *OptionalOutErrorCode = EErrorCode::EAccountNotValid; }
+		return nullptr;
+	}
+
+	return FoundAccount;
+}
+
+
 
 void FDataBase::SaveAccountFile(const FAccount& InAccount)
 {
@@ -65,6 +100,12 @@ void FDataBase::SaveAccountFile(const FAccount& InAccount)
 		Account.AddMember("Password", rapidjson::StringRef(InAccount.Password.data()), Doc.GetAllocator());
 		Doc.AddMember("Account", Account, Doc.GetAllocator());
 
+		rapidjson::StringBuffer Buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> Wirter(Buffer);
+		Doc.Accept(Wirter);
+		std::string Json(Buffer.GetString(), Buffer.GetSize());
 
+		std::ofstream File(UserDirectory + "\\" + "Account.json");
+		File << Json;
 	}
 }
