@@ -12,6 +12,7 @@ public:
 	FPlayer* IsLogin(const FAccountName& InAccountName);
 	FPlayer* IsLogin(const FAccountName& InAccountName, std::string_view InPlayerName);
 
+	EErrorCode Logout(const FAccount& InAccount, std::string_view InPlayerName);
 private:
 	FLoginSession() = default;
 	FLoginSession(const FLoginSession&) = delete;

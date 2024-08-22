@@ -63,45 +63,20 @@ EErrorCode FDataBase::DeleteAccount(const FAccount& InAccount)
 
 EErrorCode FDataBase::CreatePlayer(const FAccount& InAccount, std::string_view InPlayerName)
 {
-	{
-		EErrorCode ErrorCode = EErrorCode::ESuccessed;
-		FAccount* Account = FDataBase::Get()->CheckAccount(InAccount, &ErrorCode);
-		if (!Account)
-		{
-			return ErrorCode;
-		}
-	}
+	EErrorCode ErrorCode = EErrorCode::ESuccessed;
+	FAccount* Account = FDataBase::Get()->CheckAccount(InAccount, &ErrorCode);
+	if (Account == nullptr)	{ return ErrorCode; }
 
-	const std::string UserDirectory = AccountsDirectory + "\\" + InAccount.ID;
+	const std::string UserDirectory = AccountsDirectory + "\\" + Account->ID;
 	const std::string PlayerFile = UserDirectory + "\\" + InPlayerName.data() + ".json";
 
-	{
-		std::ifstream File(PlayerFile);
-		if (File.is_open())
-		{
-			return EErrorCode::EDuplicatePlayerName;
-		}
-	}
-	FPlayer NewPlayer = FPlayer(InAccount.ID, InPlayerName, 0);
+	std::ifstream File(PlayerFile);
+	if (File.is_open())	{ ErrorCode = EErrorCode::EDuplicateAccount; }
 
+	FPlayer NewPlayer = FPlayer(InAccount.ID, InPlayerName, 0);
 	SavePlayer(&NewPlayer);
 
-	return ESuccessed;
-	//EErrorCode ErrorCode = EErrorCode::ESuccessed;
-	//FAccount* Account = FDataBase::Get()->CheckAccount(InAccount, &ErrorCode);
-	//if (Account == nullptr)	{ return ErrorCode; }
-
-	//const std::string UserDirectory = AccountsDirectory + "\\" + Account->ID;
-	//const std::string PlayerFile = UserDirectory + "\\" + InPlayerName.data() + ".json";
-
-	//std::ifstream File(PlayerFile);
-	//if (File.is_open())	{ ErrorCode = EErrorCode::EDuplicateAccount; }
-
-	//FPlayer NewPlayer = FPlayer(InAccount.ID, InPlayerName, 0);
-	//SavePlayer(&NewPlayer);
-
-	//return ErrorCode;
-
+	return ErrorCode;
 }
 
 EErrorCode FDataBase::DeletePlayer(const FAccount& InAccount, std::string_view InPlayerName)

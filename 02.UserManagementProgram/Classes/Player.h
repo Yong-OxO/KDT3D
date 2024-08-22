@@ -11,6 +11,11 @@ public:
 		Level(InLevel)
 	{}
 
+	void OnLogout()
+	{
+		std::cout << std::format("Player OnLogout: {}, {}, Lv.{}\n", AccountName, PlayerName, Level);
+	}
+
 	FAccountName GetAccountName();
 	std::string GetPlayerName();
 	void Save(rapidjson::Value& OutValue, rapidjson::Document::AllocatorType& InAllocator);

@@ -5,6 +5,7 @@
 
 class FDataBase
 {
+	friend class FLoginSession;
 public:
 	static FDataBase* Get(const bool bDestry = false);
 
