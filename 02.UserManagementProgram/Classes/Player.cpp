@@ -1,13 +1,8 @@
 #include "Player.h"
 
-FAccountName FPlayer::GetAccountName()
+std::string_view FPlayer::GetAccountName() const
 {
 	return AccountName;
-}
-
-std::string FPlayer::GetPlayerName()
-{
-	return PlayerName;
 }
 
 void FPlayer::Save(rapidjson::Value& OutValue, rapidjson::Document::AllocatorType& InAllocator)

@@ -151,7 +151,10 @@
     <ClCompile Include="Task\DeleteAccountTask.cpp" />
     <ClCompile Include="Task\DeletePlayer.cpp" />
     <ClCompile Include="Task\LoginTask.cpp" />
+    <ClCompile Include="Task\LogoutTask.cpp" />
+    <ClCompile Include="Task\PlayerLevelUpTask.cpp" />
     <ClCompile Include="Task\PrintAccountTask.cpp" />
+    <ClCompile Include="Task\PrintLoginPlayerTask.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Classes\Account.h" />
@@ -167,7 +170,10 @@
     <ClInclude Include="Task\DeleteAccountTask.h" />
     <ClInclude Include="Task\DeletePlayer.h" />
     <ClInclude Include="Task\LoginTask.h" />
+    <ClInclude Include="Task\LogoutTask.h" />
+    <ClInclude Include="Task\PlayerLevelUpTask.h" />
     <ClInclude Include="Task\PrintAccountTask.h" />
+    <ClInclude Include="Task\PrintLoginPlayerTask.h" />
     <ClInclude Include="Task\Tasks.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

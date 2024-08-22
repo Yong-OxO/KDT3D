@@ -101,7 +101,7 @@ std::shared_ptr<FPlayer> FDataBase::CheckPlayer(const FAccount& InAccount, std::
 	if (ErrorCode != EErrorCode::ESuccessed) { return nullptr; }
 
 	const std::string UserDirectory = AccountsDirectory + "\\" + InAccount.ID;
-	const std::string PlayerFile = UserDirectory + InPlayerName.data() + ".json";
+	const std::string PlayerFile = UserDirectory + "\\" + InPlayerName.data() + ".json";
 	
 	std::ifstream File(PlayerFile);
 	if (File.is_open() == false)

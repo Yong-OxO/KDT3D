@@ -16,9 +16,7 @@ FDeletePlayer::FDeletePlayer()
 	std::cout << std::format("Input CharacterName: ");
 	std::cin >> CharacterName;
 
-	{
-
-	}
-
-
+	ErrorCode = DataBase->DeletePlayer(Account, CharacterName);
+	FUtils::PrintSystemSuccessOrFailed(ErrorCode == EErrorCode::ESuccessed,
+		std::format("Delete Player Error: {} / ID: {} / Password: {} / CharacterName: {}\n", (int)ErrorCode, Account.ID, Account.Password, CharacterName));
 }

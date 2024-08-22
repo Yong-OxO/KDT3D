@@ -5,3 +5,6 @@
 #include "CreatePlayerTask.h"
 #include "DeletePlayer.h"
 #include "LoginTask.h"
+#include "PrintLoginPlayerTask.h"
+#include "LogoutTask.h"
+#include "PlayerLevelUpTask.h"

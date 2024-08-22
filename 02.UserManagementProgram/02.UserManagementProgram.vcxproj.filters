@@ -54,6 +54,15 @@
     <ClCompile Include="Task\LoginTask.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Task\PrintLoginPlayerTask.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Task\LogoutTask.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Task\PlayerLevelUpTask.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Misc\Headers.h">
@@ -99,6 +108,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Task\LoginTask.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Task\PrintLoginPlayerTask.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Task\LogoutTask.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Task\PlayerLevelUpTask.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Classes/DataBase.h"
-//#include "Classes/LoginSession.h"
+#include "Classes/LoginSession.h"
 #include "Misc/Utils.h"
 #include "Task/Tasks.h"
 
@@ -36,7 +36,6 @@ void FEngine::Run()
 		}
 		case EPrintAccount:
 		{
-			// PrintAccountTask의 생성자에 cls를 넣으면 다른 작업에서도 cls가 실행됨
 			FPrintAccountTask PrintAccountTask;
 			break;
 		}
@@ -44,33 +43,39 @@ void FEngine::Run()
 		case ECreatePlayer:
 		{
 			FPrintAccountTask PrintAccountTask;
+			FPrintLoginPlayerTask PrintLoginPlayerTask;
 			FCreatePlayerTask CreatePlayerTask;
 			break;
 		}
 		case EDeletePlayer:
 		{
 			FPrintAccountTask PrintAccountTask;
+			FPrintLoginPlayerTask PrintLoginPlayerTask;
 			FDeletePlayer DeletePlayer;
 			break;
 		}
 		case ELogin:
 		{
+			FPrintAccountTask PrintAccountTask;
+			FPrintLoginPlayerTask PrintLoginPlayerTask;
 			FLoginTask LoginTask;
 			break;
 		}
 		case ELogout:
 		{
-
+			FPrintAccountTask PrintAccountTask;
+			FPrintLoginPlayerTask PrintLoginPlayerTask;
+			FLogoutTask LogoutTask;
 			break;
 		}
 		case EPrintLoginUsers:
 		{
-
+			FPrintLoginPlayerTask PrintLoginPlayerTask;
 			break;
 		}
 		case EPlayerLevelUp:
 		{
-			//FPlayerLevelUpTask Task;
+			FPlayerLevelUpTask Task;
 			break;
 		}
 		default:
@@ -82,7 +87,7 @@ void FEngine::Run()
 void FEngine::Init()
 {
 	FDataBase::Get();
-	//FLoginSession::Get();
+	FLoginSession::Get();
 }
 
 EMenuEvent FEngine::PrintMenuAndSelectEvent()
@@ -112,6 +117,6 @@ EMenuEvent FEngine::PrintMenuAndSelectEvent()
 
 void FEngine::Release()
 {
-	//FLoginSession::Get(true);
+	FLoginSession::Get(true);
 	FDataBase::Get(true);
 }

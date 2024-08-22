@@ -16,10 +16,14 @@ public:
 		std::cout << std::format("Player OnLogout: {}, {}, Lv.{}\n", AccountName, PlayerName, Level);
 	}
 
-	FAccountName GetAccountName();
-	std::string GetPlayerName();
+	std::string_view GetAccountName() const;
+	std::string_view GetPlayerName() const { return PlayerName; };
+	int GetLevel() const { return Level; }
+	
 	void Save(rapidjson::Value& OutValue, rapidjson::Document::AllocatorType& InAllocator);
 	bool Load(const rapidjson::Value& InValue);
+
+	void LevelUp() { ++Level; }
 
 
 private:
