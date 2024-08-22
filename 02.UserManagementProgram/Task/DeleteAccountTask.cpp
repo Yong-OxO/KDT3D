@@ -4,7 +4,6 @@
 
 FDeleteAccountTask::FDeleteAccountTask()
 {
-	system("cls");
 	std::cout << "[ ------ 회원  탈퇴 ------- ]" << std::endl;
 	const FAccount Account = FUtils::MakeAccountFromUserInput();
 	FDataBase* DataBase = FDataBase::Get();
@@ -26,6 +25,4 @@ FDeleteAccountTask::FDeleteAccountTask()
 		FUtils::PrintSystemSuccessOrFailed(ErrorCode == EErrorCode::ESuccessed,
 			std::format("Delete Account Error: {} / ID: {} / Password: {}\n", (int)ErrorCode, Account.ID, Account.Password));
 	}
-
-
 }

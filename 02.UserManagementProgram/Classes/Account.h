@@ -31,7 +31,7 @@ struct FAccount
 		const bool bPassword = Password == InAccount.Password;
 
 		return bID && bPassword;
-	}
+	} 
 	bool operator!=(const FAccount& InAccount) const
 	{
 		return !(*this == InAccount);

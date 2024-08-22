@@ -5,15 +5,17 @@ enum EMenuEvent : uint8_t
 {
 	ETerminate = 0,
 
-	ECreateAccount = 1,
-	EDeleteAccount = 2,
-	EPrintAccount = 3,
+	ECreateAccount,		// 1
+	EDeleteAccount,		// 2
+	EPrintAccount,		// 3
 
-	ECreatePlayer,
-	EDeletePlayer,
-	ELogin,
-	ELogout,
-	EPrintLoginUsers
+	ECreatePlayer,		// 4
+	EDeletePlayer,		// 5
+	ELogin,				// 6
+	ELogout,			// 7
+	EPrintLoginUsers,	// 8
+
+	EPlayerLevelUp		// 9
 };
 
 class FEngine

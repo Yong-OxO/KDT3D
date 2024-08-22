@@ -39,6 +39,21 @@
     <ClCompile Include="Task\DeleteAccountTask.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Task\CreatePlayerTask.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Task\DeletePlayer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\LoginSession.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Task\LoginTask.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Misc\Headers.h">
@@ -69,6 +84,21 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Task\DeleteAccountTask.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Task\CreatePlayerTask.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Task\DeletePlayer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\LoginSession.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Task\LoginTask.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

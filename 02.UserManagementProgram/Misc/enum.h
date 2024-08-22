@@ -2,14 +2,14 @@
 #include <iostream>
 enum EErrorCode : uint8_t
 {
-	ESuccessed,
-	EUnknown,
-	EEmptyAccount,
-	EDuplicateAccount,
-	ECanNotFoundAccount,
-	EAccountNotValid,
+	ESuccessed,				// 0
+	EUnknown,				// 1
+	EEmptyAccount,			// 2
+	EDuplicateAccount,		// 3
+	ECanNotFoundAccount,	// 4
+	EAccountNotValid,		// 5
 
-	ENoLogin,
-	EDuplicatePlayerName,
-	EPlayerNotValid, // 해당 플레이어 정보가 없다
+	ENoLogin,				// 6
+	EDuplicatePlayerName,	// 7
+	EPlayerNotValid,		// 8
 };

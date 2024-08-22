@@ -29,28 +29,33 @@ void FEngine::Run()
 		}
 		case EDeleteAccount:
 		{
+			FPrintAccountTask PrintAccountTask;
+			FDeleteAccountTask DeleteAccountTask;
 
 			break;
 		}
 		case EPrintAccount:
 		{
-
+			// PrintAccountTask의 생성자에 cls를 넣으면 다른 작업에서도 cls가 실행됨
+			FPrintAccountTask PrintAccountTask;
 			break;
 		}
 
 		case ECreatePlayer:
 		{
-
+			FPrintAccountTask PrintAccountTask;
+			FCreatePlayerTask CreatePlayerTask;
 			break;
 		}
 		case EDeletePlayer:
 		{
-
+			FPrintAccountTask PrintAccountTask;
+			FDeletePlayer DeletePlayer;
 			break;
 		}
 		case ELogin:
 		{
-
+			FLoginTask LoginTask;
 			break;
 		}
 		case ELogout:
@@ -63,13 +68,15 @@ void FEngine::Run()
 
 			break;
 		}
-		default:
+		case EPlayerLevelUp:
+		{
+			//FPlayerLevelUpTask Task;
 			break;
 		}
-		
-		
+		default:
+			break;
+		}	
 	}
-
 	Release();
 }
 void FEngine::Init()
