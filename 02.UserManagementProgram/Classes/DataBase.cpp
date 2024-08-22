@@ -63,22 +63,45 @@ EErrorCode FDataBase::DeleteAccount(const FAccount& InAccount)
 
 EErrorCode FDataBase::CreatePlayer(const FAccount& InAccount, std::string_view InPlayerName)
 {
-	EErrorCode ErrorCode;
-	FAccount* Account = FDataBase::Get()->CheckAccount(InAccount, &ErrorCode);
-	if (Account == nullptr)	{ return ErrorCode; }
+	{
+		EErrorCode ErrorCode = EErrorCode::ESuccessed;
+		FAccount* Account = FDataBase::Get()->CheckAccount(InAccount, &ErrorCode);
+		if (!Account)
+		{
+			return ErrorCode;
+		}
+	}
 
-	const std::string UserDirectory = AccountsDirectory + "\\" + Account->ID;
+	const std::string UserDirectory = AccountsDirectory + "\\" + InAccount.ID;
 	const std::string PlayerFile = UserDirectory + "\\" + InPlayerName.data() + ".json";
 
 	{
 		std::ifstream File(PlayerFile);
-		if (File.is_open())	{ ErrorCode = EErrorCode::EDuplicateAccount; }
+		if (File.is_open())
+		{
+			return EErrorCode::EDuplicatePlayerName;
+		}
 	}
-
 	FPlayer NewPlayer = FPlayer(InAccount.ID, InPlayerName, 0);
+
 	SavePlayer(&NewPlayer);
 
-	return ErrorCode;
+	return ESuccessed;
+	//EErrorCode ErrorCode = EErrorCode::ESuccessed;
+	//FAccount* Account = FDataBase::Get()->CheckAccount(InAccount, &ErrorCode);
+	//if (Account == nullptr)	{ return ErrorCode; }
+
+	//const std::string UserDirectory = AccountsDirectory + "\\" + Account->ID;
+	//const std::string PlayerFile = UserDirectory + "\\" + InPlayerName.data() + ".json";
+
+	//std::ifstream File(PlayerFile);
+	//if (File.is_open())	{ ErrorCode = EErrorCode::EDuplicateAccount; }
+
+	//FPlayer NewPlayer = FPlayer(InAccount.ID, InPlayerName, 0);
+	//SavePlayer(&NewPlayer);
+
+	//return ErrorCode;
+
 }
 
 EErrorCode FDataBase::DeletePlayer(const FAccount& InAccount, std::string_view InPlayerName)
@@ -221,7 +244,7 @@ void FDataBase::DeleteAccountFile(const FAccount& InAccount)
 void FDataBase::SavePlayer(FPlayer* InPlayer)
 {
 	const std::string UserDirectory = AccountsDirectory + "\\" + InPlayer->GetAccountName().data();
-	const std::string PalyerFile = UserDirectory + "\\" + InPlayer->GetPlayerName().data();
+	const std::string PalyerFile = UserDirectory + "\\" + InPlayer->GetPlayerName().data() + ".json";
 
 	// json
 	{
